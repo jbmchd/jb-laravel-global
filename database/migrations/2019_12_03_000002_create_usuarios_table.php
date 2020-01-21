@@ -16,7 +16,7 @@ class CreateUsuariosTable extends Migration
     {
         Schema::create('usuarios', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('pessoa_id');
+            $table->bigInteger('pessoa_id')->unsigned();
             $table->string('papel', 5)->comment('SUP => super, ADM => admin','USR => user');
             $table->string('senha');
             $table->boolean('ativo')->default(true);

@@ -11,6 +11,7 @@ trait TString
 
     public static function criarNomeUnicoDatetime($nome_base=null, $separador=null)
     {
-        return $nome_base.$separador.self::datetimeNow('YmdHisu');
+        $datetime_now = (new \Datetime())->format('YmdHisu');
+        return $nome_base.$separador.$datetime_now;
     }
 }
