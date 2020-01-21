@@ -1,0 +1,20 @@
+{
+    "name": "jbmchd/jb-laravel-global",
+    "description": "Base para projetos Laravel",
+    "type": "library",
+    "require": {
+        "laravel/framework": ">=6.0.0"
+    },
+    "minimum-stability": "dev",
+    "authors": [
+        {
+            "name": "Joabe Machado",
+            "email": "joabemachadodeabreu@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "JbGlobal\\": "src/"
+        }
+    }
+}
