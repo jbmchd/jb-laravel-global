@@ -10,6 +10,10 @@ abstract class Model extends BaseModel
 {
     use TArray, TDiversos, TException, TFile, TLog, TValidation;
 
+    const CREATED_AT = 'criado_em';
+    const UPDATED_AT = 'alterado_em';
+    const DELETED_AT = 'deletado_em';
+
     protected $hidden = ['pivot'];
 
     protected $casts = [

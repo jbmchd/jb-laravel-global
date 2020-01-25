@@ -6,9 +6,9 @@ use JbGlobal\Repositories\PessoaUsuarioRepository;
 
 class PessoaUsuarioService extends PessoaService
 {
-    public function __construct(PessoaUsuarioRepository $repositorio)
+    public function __construct(PessoaUsuarioRepository $repositorio, UsuarioService $usuario_servico)
     {
-        parent::__construct($repositorio);
+        parent::__construct($repositorio, $usuario_servico);
     }
 
     public function cadastrarComUsuario(array $dados)

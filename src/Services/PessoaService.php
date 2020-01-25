@@ -8,7 +8,7 @@ class PessoaService extends Service
 {
     protected $usuario_servico;
 
-    public function __construct(PessoaRepository $repositorio, UsuarioService $usuario_servico = null)
+    public function __construct(PessoaRepository $repositorio, UsuarioService $usuario_servico)
     {
         $this->repositorio = $repositorio;
         $this->usuario_servico = $usuario_servico;
