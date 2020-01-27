@@ -3,7 +3,6 @@
 namespace JbGlobal\Repositories;
 
 use JbGlobal\Models\Usuario;
-use JbGlobal\Models\Pessoa;
 
 class UsuarioRepository extends Repository
 {
@@ -12,10 +11,10 @@ class UsuarioRepository extends Repository
         $this->model = $model;
     }
 
-    public function alterarSenha(Pessoa $Pessoa, $senha_hash)
+    public function alterarSenha($usuario_id, $senha_hash)
     {
-        $this->model->find($Pessoa->usuario->id)->update(['senha' => $senha_hash]);
-        return $Pessoa;
+        $this->model->find($usuario_id)->update(['senha' => $senha_hash]);
+        return true;
     }
 
     public function criarArrayValido(array $dados)
