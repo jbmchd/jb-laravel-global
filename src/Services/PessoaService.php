@@ -14,11 +14,6 @@ class PessoaService extends Service
         $this->usuario_servico = $usuario_servico;
     }
 
-    public function encontrar($id, array $colunas = ['*'])
-    {
-        return $this->repositorio->encontrar($id);
-    }
-
     public function cadastrarComUsuario(array $dados)
     {
         unset($dados['id']);

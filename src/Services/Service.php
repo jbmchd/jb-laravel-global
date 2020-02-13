@@ -15,14 +15,14 @@ abstract class Service
         return $this->repositorio->todos($colunas);
     }
 
-    public function encontrar($id, array $colunas = ['*'])
+    public function buscar($id, array $colunas = ['*'])
     {
-        return $this->repositorio->encontrar($id, $colunas);
+        return $this->repositorio->buscar($id, $colunas);
     }
 
-    public function encontrarPor($coluna, $valor, $with=[])
+    public function buscarPor($coluna, $valor, $with=[])
     {
-        return $this->repositorio->encontrarPor($coluna, $valor, $with);
+        return $this->repositorio->buscarPor($coluna, $valor, $with);
     }
 
     public function criar(array $dados)
@@ -47,7 +47,7 @@ abstract class Service
             return $result;
         }
         $result = $this->repositorio->atualizar($dados, $id);
-        return $result ? $this->encontrar($id) : $result ;
+        return $result ? $this->buscar($id) : $result ;
     }
 
     public function criarArrayValido(array $dados)

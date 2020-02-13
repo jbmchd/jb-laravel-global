@@ -13,17 +13,17 @@ abstract class Repository
         return $this->model->get($colunas);
     }
 
-    public function encontrar($id, array $colunas = ['*'])
+    public function buscar($id, array $colunas = ['*'])
     {
         return $this->model->find($id, $colunas);
     }
 
-    public function encontrarPor($coluna, $valor, $with=[])
+    public function buscarPor($coluna, $valor, $with=[])
     {
         return $this->model->with($with)->where($coluna, $valor)->first();
     }
 
-    public function encontrarExcluido($id, array $colunas = ['*'])
+    public function buscarExcluido($id, array $colunas = ['*'])
     {
         return $this->model->onlyTrashed()->find($id, $colunas);
     }
@@ -48,12 +48,12 @@ abstract class Repository
 
     public function atualizar(array $dados, $id)
     {
-        return $this->model->where('id', $id)->update($dados);
+        return $this->model->where('id', $id)->update($dados) ? true : false;
     }
 
     public function excluir($id)
     {
-        return $this->model->destroy($id);
+        return $this->model->destroy($id) ? true : false;
     }
 
 }
