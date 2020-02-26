@@ -53,7 +53,7 @@ abstract class Repository
     public function deletar($id)
     {
         $model = $this->encontrar($id);
-        $model->delete();
+        if($model) $model->delete();
         return $model;
     }
 
