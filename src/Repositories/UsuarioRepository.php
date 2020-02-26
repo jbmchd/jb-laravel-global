@@ -17,7 +17,7 @@ class UsuarioRepository extends Repository
         return true;
     }
 
-    public function criarArrayValido(array $dados)
+    public function criarArrayValido(array $dados, $ignorar_pk=0)
     {
         $Usuario = $this->model->fill($dados);
         $usuario = $Usuario->toArray();

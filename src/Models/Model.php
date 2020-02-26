@@ -15,6 +15,7 @@ abstract class Model extends BaseModel
     const DELETED_AT = 'deletado_em';
 
     protected $hidden = ['pivot'];
+    protected $dates = ['deletado_em'];
 
     protected $casts = [
         'id' => 'integer',

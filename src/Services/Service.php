@@ -10,63 +10,35 @@ abstract class Service
 
     protected $repositorio;
 
-    public function todos(array $colunas = ['*'])
+    public function buscar(array $colunas = ['*'])
     {
-        return $this->repositorio->todos($colunas);
+        return $this->repositorio->buscar($colunas);
     }
 
-    public function buscar($id, array $colunas = ['*'])
+    public function encontrar($id, array $colunas = ['*'])
     {
-        return $this->repositorio->buscar($id, $colunas);
+        return $this->repositorio->encontrar($id, $colunas);
     }
 
-    public function buscarPor($coluna, $valor, $with=[])
+    public function encontrarPor($coluna, $valor, $with=[])
     {
-        return $this->repositorio->buscarPor($coluna, $valor, $with);
+        return $this->repositorio->encontrarPor($coluna, $valor, $with);
     }
 
     public function criar(array $dados)
     {
-        $dados = $this->criarArrayValido($dados);
-        unset($dados['id']);
-        $result = $this->validar($dados, $this->regras());
-        if ($result['erro']) {
-            return $result;
-        }
         return $this->repositorio->criar($dados);
     }
 
-    public function atualizar(array $dados, $id=null)
+    public function atualizar(array $dados, $id)
     {
-        $dados = $this->criarArrayValido($dados);
-        if (!$id) {
-            $id = $dados['id'];
-        }
-        $result = $this->validar($dados, $this->regras($id));
-        if ($result['erro']) {
-            return $result;
-        }
-        $result = $this->repositorio->atualizar($dados, $id);
-        return $result ? $this->buscar($id) : $result ;
+        $this->repositorio->atualizar($dados, $id);
+        return $this->encontrar($id);
     }
 
-    public function criarArrayValido(array $dados)
+    public function deletar($id)
     {
-        $id = 0;
-        if (isset($dados['id'])) {
-            $id = (int) $dados['id'];
-        }
-
-        $validacao = $this->validar($dados, $this->regras($id));
-        if ($validacao['erro']) {
-            return $validacao;
-        }
-
-        return $this->repositorio->criarArrayValido($dados);
+        return $this->repositorio->deletar($id);
     }
 
-    public function regras($ignorar_id = 0)
-    {
-        return [];
-    }
 }
