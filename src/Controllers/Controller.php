@@ -42,14 +42,16 @@ class Controller extends BaseController
     {
         $dados = $request->all();
         $result = $this->servico->atualizar($dados, $id);
-        $retorno = self::criarRetornoController($result, 'Registro atualizado com sucesso.');
+        $mensagem = $result ? 'Registro atualizado com sucesso.' : 'Operação realizada, mas nenhum registro alterado.';
+        $retorno = self::criarRetornoController($result, $mensagem);
         return $retorno;
     }
 
     public function deletar($id)
     {
         $result = $this->servico->deletar($id);
-        $retorno = self::criarRetornoController($result, 'Registro deletado com sucesso.');
+        $mensagem = $result ? 'Registro deletado com sucesso.' : 'Operação realizada, mas nenhum registro deletado.';
+        $retorno = self::criarRetornoController($result, $mensagem);
         return $retorno;
     }
 }

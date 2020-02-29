@@ -3,6 +3,7 @@
 namespace JbGlobal\Repositories;
 
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\DB;
 use JbGlobal\Traits\{ TArray, TDiversos, TException, TLog, TValidation, TFile };
 
 abstract class Repository
@@ -11,6 +12,7 @@ abstract class Repository
 
     protected $model;
 
+    // BUSCAS
     public function buscar(array $colunas = ['*'])
     {
         return $this->model->get($colunas);
@@ -31,11 +33,7 @@ abstract class Repository
         return $this->model->onlyTrashed()->find($id, $colunas);
     }
 
-    // public function criarArrayValido(array $dados)
-    // {
-    //     return $this->model->fill($dados)->toArray();
-    // }
-
+    // CRUD
     public function criar(array $dados)
     {
         unset($dados[$this->model->getKeyName()]);
@@ -45,9 +43,13 @@ abstract class Repository
 
     public function atualizar(array $dados, $id)
     {
-        $pk_name = $this->model->getKeyName();
-        $dados = $this->criarArrayValido($dados, $id);
-        return $this->model->where($pk_name, $id)->update($dados) ? true : false;
+        $model = $this->encontrar($id);
+        if($model){
+            $pk_name = $this->model->getKeyName();
+            $dados = $this->criarArrayValido($dados, $id);
+            $this->model->where($pk_name, $id)->update($dados);
+        }
+        return $model ?? false;
     }
 
     public function deletar($id)
@@ -57,6 +59,36 @@ abstract class Repository
         return $model;
     }
 
+    public function criarNM(array $dados_n, array $ids_m, string $tabela_m)
+    {
+        DB::beginTransaction();
+        $result = $this->criar($dados_n);
+        $result->$tabela_m()->attach($ids_m);
+        DB::commit();
+
+        return $result;
+    }
+
+    public function atualizarNM(array $dados_n, $id_n, array $ids_m, string $tabela_m)
+    {
+        DB::beginTransaction();
+        $result = $this->atualizar($dados_n, $id_n);
+        $result->$tabela_m()->sync($ids_m);
+        DB::commit();
+        return $result;
+    }
+
+    public function deletarNM($id, $tabela_m)
+    {
+        DB::beginTransaction();
+        $result = $this->deletar($id);
+        $result->$tabela_m()->detach();
+        DB::commit();
+
+        return $result;
+    }
+
+    // OUTROS
     public function paginar($pagina, $limite = 10)
     {
         Paginator::currentPageResolver(function () use ($pagina) {

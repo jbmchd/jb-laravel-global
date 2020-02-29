@@ -27,18 +27,10 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(env('DB_MAX_STRING_LENGTH',191));
 
-        Validator::extend('cpf', '\App\Validations\CPFValidation@validate');
-        Validator::extend('cnpj', '\App\Validations\CNPJValidation@validate');
-        Validator::extend('cep', '\App\Validations\CEPValidation@validate');
-
-        Validator::replacer('cpf', function ($message, $attribute, $rule, $parameters) {
-            return 'CPF inválido';
-        });
-        Validator::replacer('cnpj', function ($message, $attribute, $rule, $parameters) {
-            return 'CNPJ inválido';
-        });
-        Validator::replacer('cep', function ($message, $attribute, $rule, $parameters) {
-            return 'CEP inválido';
-        });
+        Validator::extend('cpf', 'JbGlobal\Validators\CPFValidation@validate');
+        Validator::extend('cnpj', 'JbGlobal\Validators\CNPJValidation@validate');
+        Validator::extend('cep', 'JbGlobal\Validators\CEPValidation@validate');
+        Validator::extendImplicit('primary_key', 'JbGlobal\Validators\PrimaryKeyValidation@validate');
+        Validator::extend('foreign_key', 'JbGlobal\Validators\ForeignKeyValidation@validate');
     }
 }
