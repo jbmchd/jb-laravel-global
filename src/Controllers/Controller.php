@@ -7,6 +7,7 @@ use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use JbGlobal\Services\Service;
 use JbGlobal\Traits\{ TArray, TDiversos, TException, TFile, TLog, TString, TValidation };
 
 class Controller extends BaseController
@@ -15,6 +16,11 @@ class Controller extends BaseController
     use TArray, TDiversos, TException, TFile, TLog, TString, TValidation;
 
     protected $servico;
+
+    public function __construct(Service $servico)
+    {
+        $this->servico = $servico;
+    }
 
     public function buscar()
     {
@@ -42,7 +48,7 @@ class Controller extends BaseController
     {
         $dados = $request->all();
         $result = $this->servico->atualizar($dados, $id);
-        $mensagem = $result ? 'Registro atualizado com sucesso.' : 'Operação realizada, mas nenhum registro alterado.';
+        $mensagem = $result ? 'Registro atualizado com sucesso.' : 'OperaÃ§Ã£o realizada, mas nenhum registro alterado.';
         $retorno = self::criarRetornoController($result, $mensagem);
         return $retorno;
     }
@@ -50,7 +56,7 @@ class Controller extends BaseController
     public function deletar($id)
     {
         $result = $this->servico->deletar($id);
-        $mensagem = $result ? 'Registro deletado com sucesso.' : 'Operação realizada, mas nenhum registro deletado.';
+        $mensagem = $result ? 'Registro deletado com sucesso.' : 'OperaÃ§Ã£o realizada, mas nenhum registro deletado.';
         $retorno = self::criarRetornoController($result, $mensagem);
         return $retorno;
     }

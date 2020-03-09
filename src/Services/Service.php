@@ -2,6 +2,7 @@
 
 namespace JbGlobal\Services;
 
+use JbGlobal\Repositories\Repository;
 use JbGlobal\Traits\{ TArray, TDiversos, TException, TLog, TValidation, TFile };
 
 abstract class Service
@@ -9,6 +10,11 @@ abstract class Service
     use TArray, TDiversos, TException, TFile, TLog, TValidation;
 
     protected $repositorio;
+
+    public function __construct(Repository $repositorio)
+    {
+        $this->repositorio = $repositorio;
+    }
 
     public function buscar(array $colunas = ['*'])
     {

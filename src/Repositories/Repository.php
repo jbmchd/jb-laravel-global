@@ -11,6 +11,13 @@ abstract class Repository
     use TArray, TDiversos, TException, TFile, TLog, TValidation;
 
     protected $model;
+    protected $model_class;
+
+    public function __construct(\Illuminate\Database\Eloquent\Model $model)
+    {
+        $this->model = $model;
+        $this->model_class = get_class($model);
+    }
 
     // BUSCAS
     public function buscar(array $colunas = ['*'])
@@ -37,17 +44,18 @@ abstract class Repository
     public function criar(array $dados)
     {
         unset($dados[$this->model->getKeyName()]);
-        $dados = $this->criarArrayValido($dados);
-        return $this->model->create($dados);
+        $model = $this->criarModelValido($dados);
+        $model->save();
+        return $model;
     }
 
     public function atualizar(array $dados, $id)
     {
         $model = $this->encontrar($id);
         if($model){
-            $pk_name = $this->model->getKeyName();
             $dados = $this->criarArrayValido($dados, $id);
-            $this->model->where($pk_name, $id)->update($dados);
+            $model->fill($dados);
+            $model->save();
         }
         return $model ?? false;
     }
@@ -97,20 +105,25 @@ abstract class Repository
         return $this->model->paginate($limite);
     }
 
+    public function criarModelValido(array $dados, $ignorar_pk=0)
+    {
+        $dados = $this->criarArrayValido($dados, $ignorar_pk);
+        return $this->model->fill($dados);
+    }
+
     public function criarArrayValido(array $dados, $ignorar_pk=0)
     {
         $dados[$this->model->getKeyName()] = $ignorar_pk;
-        $validacao = $this->validar($dados, $this->regras($ignorar_pk));
+        $validacao = $this->validar($dados, $this->regras($ignorar_pk, $dados));
         if ($validacao['erro']) {
             return $validacao;
         }
-
-        return $this->model->fill($dados)->toArray();
+        return $dados;
     }
 
-    public function regras($ignorar_pk = 0)
+    public function regras($ignorar_pk = 0, $dados)
     {
-        return [];
+        return $ignorar_pk ? ["id" => "primary_key|unique:$this->model_class,id,$ignorar_pk"] : [];
     }
 
 }

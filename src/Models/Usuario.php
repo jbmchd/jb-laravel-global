@@ -4,9 +4,9 @@ namespace JbGlobal\Models;
 
 class Usuario extends Model
 {
-    const PAPEL_SUPER = 'SUP';
-    const PAPEL_ADMIN = 'ADM';
-    const PAPEL_USUARIO = 'USR';
+    const PAPEL_SUPER = 'SU';
+    const PAPEL_ADMINISTRADOR = 'ADM';
+    const PAPEL_SUPORTE = 'SUP';
 
     protected $fillable = [
         'id','pessoa_id','papel','senha','remember_token','ativo'
