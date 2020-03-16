@@ -2,11 +2,10 @@
 
 namespace JbGlobal\Models;
 
-use Illuminate\Database\Eloquent\Model as BaseModel;
-use JbGlobal\Exceptions\ModelException;
+use Illuminate\Database\Eloquent\Model as LaravelModel;
 use JbGlobal\Traits\{ TArray, TDiversos, TException, TLog, TValidation, TFile };
 
-abstract class Model extends BaseModel
+abstract class Model extends LaravelModel
 {
     use TArray, TDiversos, TException, TFile, TLog, TValidation;
 
@@ -24,61 +23,20 @@ abstract class Model extends BaseModel
 
     public $model_class;
 
-    protected static function aplicarRegras(BaseModel $model){
-        // dd('aplicar regras');
+    protected static function aplicarRegras(LaravelModel $model){
+        $model->makeVisible($model->getHidden());
         $dados = $model->toArray();
         $ignorar_pk = $model->{$model->getKeyName()} ?? 0;
         $regras = $model->regras($ignorar_pk, $dados);
         self::validar($dados, $regras);
-        // dd($dados, $regras);
     }
 
-    public static function boot() {
+    protected static function boot() {
         parent::boot();
 
         self::saving(function($model) {
             self::aplicarRegras($model);
         });
-        // self::retrieved(function($model) {
-        //     dd($model);
-        //     self::aplicarRegras($model);
-        // });
-        // self::creating(function($model) {
-        //     // dd('creating');
-        //     self::aplicarRegras($model);
-        // });
-        // self::created(function($model) {
-        //     dd('created');
-        //     self::aplicarRegras($model);
-        // });
-        // self::updating(function($model) {
-        //     dd('updating');
-        //     self::aplicarRegras($model);
-        // });
-        // self::updated(function($model) {
-        //     dd('updated');
-        //     self::aplicarRegras($model);
-        // });
-        // self::saved(function($model) {
-        //     dd('saved');
-        //     self::aplicarRegras($model);
-        // });
-        // self::deleting(function($model) {
-        //     dd('deleting');
-        //     self::aplicarRegras($model);
-        // });
-        // self::deleted(function($model) {
-        //     dd('deleted');
-        //     self::aplicarRegras($model);
-        // });
-        // self::restoring(function($model) {
-        //     dd('restoring');
-        //     self::aplicarRegras($model);
-        // });
-        // self::restored(function($model) {
-        //     dd('restored');
-        //     self::aplicarRegras($model);
-        // });
     }
 
     public static function scopeAtivos($query, $coluna_nome='ativo')
@@ -91,7 +49,7 @@ abstract class Model extends BaseModel
         return (new self())->getTable();
     }
 
-    public function regras($ignorar_pk = 0, $dados)
+    public function regras($ignorar_pk = 0, $dados = [])
     {
         return $ignorar_pk ? ["id" => "primary_key|unique:$this->model_class,id,$ignorar_pk"] : [];
     }

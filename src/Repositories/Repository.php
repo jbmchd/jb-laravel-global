@@ -47,7 +47,7 @@ abstract class Repository
         DB::beginTransaction();
         unset($dados[$this->model->getKeyName()]);
         $model = $this->model->create($dados);
-        $model = $this->saveWith($model, $with) ?? $model;
+        $model = $with ? $this->saveWith($model, $with) : $model;
         DB::commit();
         return $model;
     }
@@ -60,21 +60,10 @@ abstract class Repository
         $model->model_class = $this->model->model_class;
         $model->fill($dados);
         $model->update();
-        $model = $this->saveWith($model, $with) ?? $model;
+        $model = $with ? $this->saveWith($model, $with) : $model;
         DB::commit();
         return $model;
     }
-
-    // public function atualizar(array $dados, $id)
-    // {
-    //     $model = $this->encontrar($id);
-    //     if($model){
-    //         $dados = $this->criarArrayValido($dados, $id);
-    //         $model->fill($dados);
-    //         $model->save();
-    //     }
-    //     return $model ?? null;
-    // }
 
     public function deletar($id, array $with = null)
     {
@@ -91,12 +80,6 @@ abstract class Repository
         DB::commit();
         return $model;
     }
-    // public function deletar($id)
-    // {
-    //     $model = $this->encontrar($id);
-    //     if($model) $model->delete();
-    //     return $model ?? null;
-    // }
 
     public function criarNM(array $dados_n, array $ids_m, string $tabela_m)
     {
@@ -130,18 +113,15 @@ abstract class Repository
         return $result;
     }
 
-    public function saveWith(Model $model, array $with = null)
+    public function saveWith(Model $model, array $with)
     {
-        if($with){
-            $hasmanys = [];
-            foreach ($with as $key => $cada) {
-                $hasmany = $cada['hasmany'];
-                $model->{$hasmany}()->createMany($cada['dados']);
-                array_push($hasmanys, $hasmany);
-            }
-            return $this->encontrarPor('id',$model->id, $hasmanys);
+        $hasmanys = [];
+        foreach ($with as $key => $cada) {
+            $hasmany = $cada['hasmany'];
+            $model->{$hasmany}()->createMany($cada['dados']);
+            array_push($hasmanys, $hasmany);
         }
-        return false;
+        return $this->encontrarPor('id',$model->id, $hasmanys);
     }
 
     // OUTROS
@@ -168,10 +148,4 @@ abstract class Repository
         }
         return $dados;
     }
-
-    // public function regras($ignorar_pk = 0, $dados)
-    // {
-    //     return $ignorar_pk ? ["id" => "primary_key|unique:$this->model_class,id,$ignorar_pk"] : [];
-    // }
-
 }
