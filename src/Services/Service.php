@@ -38,8 +38,7 @@ abstract class Service
 
     public function atualizar(array $dados, $id)
     {
-        $this->repositorio->atualizar($dados, $id);
-        return $this->encontrar($id);
+        return $this->repositorio->atualizar($dados, $id);
     }
 
     public function deletar($id)

@@ -42,7 +42,7 @@ abstract class Repository
     }
 
     // CRUD
-    public function criar(array $dados, array $with = null)
+    public function criar(array $dados, array $with = [])
     {
         DB::beginTransaction();
         unset($dados[$this->model->getKeyName()]);
@@ -52,7 +52,7 @@ abstract class Repository
         return $model;
     }
 
-    public function atualizar(array $dados, $id, array $with = null)
+    public function atualizar(array $dados, $id, array $with = [])
     {
         DB::beginTransaction();
         $model = $this->encontrar($id);
@@ -65,7 +65,7 @@ abstract class Repository
         return $model;
     }
 
-    public function deletar($id, array $with = null)
+    public function deletar($id, array $with = [])
     {
         DB::beginTransaction();
         $model = $this->encontrarPor('id',$id,$with);
