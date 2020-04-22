@@ -4,7 +4,7 @@ namespace JbGlobal\Services;
 
 use JbGlobal\Repositories\LogRepository;
 
-class LogService extends Service
+class LogService extends CrudService
 {
     public function __construct(LogRepository $repositorio)
     {

@@ -3,7 +3,7 @@
 namespace JbGlobal\Services\Pessoas;
 
 use JbGlobal\Repositories\Pessoas\UsuarioRepository as Repository;
-use JbGlobal\Services\Service;
+use JbGlobal\Services\CrudService as Service;
 
 class UsuarioService extends Service
 {

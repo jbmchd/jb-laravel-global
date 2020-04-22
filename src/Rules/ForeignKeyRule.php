@@ -27,7 +27,12 @@ class ForeignKeyRule implements ImplicitRule
         $parameters = $this->parameters;
 
         $table = $parameters[0];
-        $campoId = $parameters[1] ?? 'id';
+        $nullable = ($parameters[1]??'')==='nullable';
+
+        if($nullable && is_null($value)){
+            return true;
+        }
+
         $model = null;
 
         if (Str::contains($table, '\\') && class_exists($table) && is_a($table, Model::class, true)) {
