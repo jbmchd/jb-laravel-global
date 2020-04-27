@@ -28,14 +28,14 @@ abstract class Repository
         return $this->view->ativos()->get();
     }
 
-    public function buscar(array $colunas = ['*'])
+    public function buscar(array $colunas = ['*'], array $with=[])
     {
-        return $this->view->get($colunas);
+        return $this->view->with($with)->get($colunas);
     }
 
-    public function buscarPor($coluna, $valor, array $colunas = ['*'])
+    public function buscarPor($coluna, $valor, array $colunas = ['*'], array $with=[])
     {
-        return $this->view->where($coluna, $valor)->get($colunas);
+        return $this->view->where($coluna, $valor)->with($with)->get($colunas);
     }
 
     public function encontrar($id, array $colunas = ['*'])

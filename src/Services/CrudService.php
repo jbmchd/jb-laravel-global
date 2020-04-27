@@ -18,9 +18,9 @@ abstract class CrudService extends Service
         return $this->repositorio->ativos();
     }
 
-    public function buscar(array $colunas = ['*'])
+    public function buscar(array $colunas = ['*'], array $with=[])
     {
-        return $this->repositorio->buscar($colunas);
+        return $this->repositorio->buscar($colunas, $with);
     }
 
     public function buscarPor($coluna, $valor, $with=[])
