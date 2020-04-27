@@ -3,11 +3,11 @@
 namespace JbGlobal\Models;
 
 use Illuminate\Database\Eloquent\Model as LaravelModel;
-use JbGlobal\Traits\{ TArray, TDiversos, TException, TLog, TValidation, TFile };
+use JbGlobal\Traits\{ TArray, TDiversos, TException, TLog, TValidation, TFile, TSessao };
 
 abstract class Model extends LaravelModel
 {
-    use TArray, TDiversos, TException, TFile, TLog, TValidation;
+    use TArray, TDiversos, TException, TFile, TLog, TValidation, TSessao;
 
     const CREATED_AT = 'criado_em';
     const UPDATED_AT = 'alterado_em';
