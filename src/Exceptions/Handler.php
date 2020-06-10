@@ -9,7 +9,10 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
+use JbAuthJwt\Exceptions\AuthException;
+use JbAuthJwt\Exceptions\RedefinirSenhaException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class Handler extends ExceptionHandler
@@ -27,10 +30,12 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        AuthorizationException::class,
         HttpException::class,
+        AuthorizationException::class,
         ModelNotFoundException::class,
         ValidationException::class,
+		AuthException::class,
+        RedefinirSenhaException::class,
     ];
 
     /**
@@ -53,7 +58,9 @@ class Handler extends ExceptionHandler
     {
         $result = null;
         $classe = get_class($exception);
-        if (array_search($classe, $this->dontReport) !== false) {
+        $classe_pai = get_parent_class($exception);
+
+        if (array_search($classe, $this->dontReport) !== false || array_search($classe_pai, $this->dontReport) !== false) {
             $result = parent::report($exception);
             return $result;
         }
@@ -61,7 +68,10 @@ class Handler extends ExceptionHandler
         try {
             $usuario = auth()->user();
 
+            $nivel = method_exists($exception, 'getLogNivel') ? $exception->getLogNivel() : 'alert';
+
             $this->servico_log->criar([
+                'nivel' => $nivel,
                 'tipo' => $classe,
                 'mensagem' =>  $exception->getMessage(),
                 'arquivo' => $exception->getFile(),
@@ -72,7 +82,7 @@ class Handler extends ExceptionHandler
                 'dados' => $this->toJson(Request::all()),
             ]);
         } catch (Exception $e) {
-            \Log::error($e);
+            Log::error($e);
         }
         return $result;
     }
@@ -93,7 +103,7 @@ class Handler extends ExceptionHandler
         }
 
         $codigo = 500;
-        $resposta = ['erro' => 'Ocorreu um erro no sistema.'];
+        $resposta = ['message' => 'Ocorreu algum problema.'];
 
         if (config('app.debug')) {
             $resposta['exception'] = get_class($exception);

@@ -2,58 +2,208 @@
 
 namespace JbGlobal\Repositories;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\DB;
+use JbGlobal\Exceptions\RepositoryException;
+use JbGlobal\Traits\{ TArray, TDiversos, TException, TLog, TValidation, TFile, TSessao };
 
 abstract class Repository
 {
+    use TRepository, TArray, TDiversos, TException, TFile, TLog, TValidation, TSessao;
+
     protected $model;
+    protected $view;
 
-    public function todos(array $colunas = ['*'])
+    public function __construct(Model $model, Model $view=null)
     {
-        return $this->model->get($colunas);
+        $model->model_class = get_class($model);
+        $this->model = $model;
+        $this->view = $view ?? $model;
     }
 
-    public function encontrar($id, array $colunas = ['*'])
+    // BUSCAS
+    public function ativos()
     {
-        return $this->model->find($id, $colunas);
+        return $this->view->ativos()->get();
     }
 
-    public function encontrarPor($coluna, $valor, $with=[])
+    public function buscar(array $colunas = ['*'], array $with=[], array $scopes=[])
     {
-        return $this->model->with($with)->where($coluna, $valor)->first();
+        $query = $this->view->with($with);
+        $query = self::queryAdicionarScopes($query, $scopes);
+        return $query->get($colunas);
     }
 
-    public function encontrarExcluido($id, array $colunas = ['*'])
+    public function buscarPor($coluna, $valor, array $colunas = ['*'], array $with=[], array $scopes=[])
     {
-        return $this->model->onlyTrashed()->find($id, $colunas);
+        $query = $this->view->where($coluna, $valor)->with($with);
+        $query = self::queryAdicionarScopes($query, $scopes);
+        return $query->get($colunas);
     }
 
+    public function encontrar($id, array $colunas = ['*'], array $scopes=[])
+    {
+        $query = $this->view;
+        $query = self::queryAdicionarScopes($query, $scopes);
+        return $query->find($id, $colunas);
+    }
+
+    public function encontrarPor($coluna, $valor, $with=[], array $scopes=[])
+    {
+        $query = $this->view->with($with)->where($coluna, $valor);
+        $query = self::queryAdicionarScopes($query, $scopes);
+        return $query->first();
+    }
+
+    public function encontrarExcluido($id, array $colunas = ['*'], array $scopes=[])
+    {
+        $query = $this->view->onlyTrashed();
+        $query = self::queryAdicionarScopes($query, $scopes);
+        return $query->find($id, $colunas);
+    }
+
+    // CRUD
+    public function criar(array $dados, array $with = [])
+    {
+        DB::beginTransaction();
+        unset($dados[$this->model->getKeyName()]);
+        $model = $this->model->create($dados);
+        $model = $with ? $this->saveWith($model, $with) : $model;
+        DB::commit();
+        return $model;
+    }
+
+    public function atualizar(array $dados, $id, array $with = [])
+    {
+        dd('aki');
+        DB::beginTransaction();
+        $model = $this->model->find($id);
+        if(!$model) return $model;
+        $dados[$model->getKeyName()] = $id;
+        $model->model_class = $this->model->model_class;
+        $model->fill($dados);
+        $model->update();
+        $model = $with ? $this->saveWith($model, $with) : $model;
+        DB::commit();
+        return $model;
+    }
+
+    public function deletar($id, array $with = [])
+    {
+        DB::beginTransaction();
+        $model = $this->encontrarPor('id',$id,$with);
+        if($model) {
+            if($with){
+                foreach ($with as $key => $relacionamento) {
+                    $model->{$relacionamento}()->delete();
+                }
+            }
+            $model->delete();
+        }
+        DB::commit();
+        return $model;
+    }
+
+    public function criarNM(array $dados_n, array $ids_m, string $tabela_m)
+    {
+        DB::beginTransaction();
+        $result = $this->criar($dados_n);
+        throw_if(!$result, new RepositoryException("Problema ao inserir os dados na tabela {$this->model->getTable()}"));
+        $result->$tabela_m()->attach($ids_m);
+        DB::commit();
+        return $result;
+    }
+
+    public function atualizarNM(array $dados_n, $id_n, array $ids_m, string $tabela_m)
+    {
+        DB::beginTransaction();
+        $result = $this->atualizar($dados_n, $id_n);
+        throw_if(!$result, new RepositoryException("Problema ao atualizar os dados na tabela {$this->model->getTable()}"));
+        $result->$tabela_m()->sync($ids_m);
+        DB::commit();
+        return $result;
+    }
+
+    public function deletarNM($id, $tabela_m)
+    {
+        DB::beginTransaction();
+        $result = $this->deletar($id);
+        throw_if(!$result, new RepositoryException("Problema ao deletar os dados na tabela {$this->model->getTable()}"));
+        $result->$tabela_m()->detach();
+        DB::commit();
+
+        return $result;
+    }
+
+    public function saveWith(Model $model, array $with)
+    {
+        $hasmanys = [];
+        foreach ($with as $key => $cada_with) {
+            $hasmany = $cada_with['hasmany'];
+            $dados = $cada_with['dados'];
+
+            // $hasmany_model = get_class_methods($model->{$hasmany}());
+
+            $related_namespace = $model->{$hasmany}()->getRelated();
+            // $hasmany_data = array_map(function($cada_dados) use ($model, $hasmany, $hasmany_model) {
+            //     dd($hasmany_model, new $hasmany_model($cada_dados));
+            //     return $hasmany_model->fill($cada_dados);
+            // }, $dados);
+
+            // $model->{$hasmany}()->saveMany($hasmany_data);
+                // unset($dados[0]['id']);
+                $dados[0]['numero'] = 55;
+                // $dados[0]['lancamento_id'] = 164;
+
+                // $model = new \App\Models\LancamentoParcela();
+                $model = $model->{$hasmany}()->getRelated();
+                $parcela = $model->find(57);
+                // dd($parcela);
+
+                // $temp= (new \App\Models\LancamentoParcela())->fill($dados[0]);
+                $parcela->fill($dados[0]);
+                $result = $parcela->save();
+                // dd($parcela);
+                dd(
+                    $result
+                );
+            // dd($related_namespace, get_class_methods(new $related_namespace));
+            // dd($related_namespace->updateOrCreate($dados[0]));
+
+            // dd($model->{$hasmany}()->saveMany($dados));
+
+
+
+                $related_namespace::updateOrCreate($dados[0]);
+            $model->{$hasmany}()->updateOrCreate($dados[0]);
+            array_push($hasmanys, $hasmany);
+        }
+        return $this->encontrarPor('id',$model->id, $hasmanys);
+    }
+
+    // OUTROS
     public function paginar($pagina, $limite = 10)
     {
         Paginator::currentPageResolver(function () use ($pagina) {
             return $pagina;
         });
-        return $this->model->paginate($limite);
+        return $this->view->paginate($limite);
     }
 
-    public function criarArrayValido(array $dados)
+    public function criarModelValido(array $dados, $ignorar_pk=0)
     {
-        return $this->model->fill($dados)->toArray();
+        $dados = $this->criarArrayValido($dados, $ignorar_pk);
+        return $this->model->fill($dados);
     }
 
-    public function criar(array $dados)
+    public function criarArrayValido(array $dados, $ignorar_pk=0)
     {
-        return $this->model->create($dados);
+        $dados[$this->model->getKeyName()] = $ignorar_pk;
+        $validacao = $this->validar($dados, $this->regras($ignorar_pk, $dados));
+        if ($validacao['erro']) {
+            return $validacao;
+        }
+        return $dados;
     }
-
-    public function atualizar(array $dados, $id)
-    {
-        return $this->model->where('id', $id)->update($dados);
-    }
-
-    public function excluir($id)
-    {
-        return $this->model->destroy($id);
-    }
-
 }

@@ -2,13 +2,8 @@
 
 namespace JbGlobal\Models;
 
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Foundation\Auth\User as Authenticatable;
-
-class Pessoa extends Authenticatable
+class Pessoa extends Model
 {
-    use Notifiable;
-
     protected $fillable = [
         'id','nome','email','email_verificado_em','ativo'
     ];
