@@ -2,7 +2,6 @@
 
 namespace JbGlobal\Traits;
 
-use JbGlobal\Exceptions\AppException;
 use Illuminate\Support\Facades\Validator;
 use JbGlobal\Exceptions\ModelException;
 

@@ -12,12 +12,13 @@ abstract class Repository
 {
     use TRepository, TArray, TDiversos, TException, TFile, TLog, TValidation, TSessao;
 
+    const SINCRONIZAR = true;
+
     protected $model;
     protected $view;
 
     public function __construct(Model $model, Model $view=null)
     {
-        $model->model_class = get_class($model);
         $this->model = $model;
         $this->view = $view ?? $model;
     }
@@ -74,17 +75,15 @@ abstract class Repository
         return $model;
     }
 
-    public function atualizar(array $dados, $id, array $with = [])
+    public function atualizar(array $dados, $id, array $with = [], bool $sincronizar = false)
     {
-        dd('aki');
         DB::beginTransaction();
         $model = $this->model->find($id);
         if(!$model) return $model;
         $dados[$model->getKeyName()] = $id;
-        $model->model_class = $this->model->model_class;
         $model->fill($dados);
         $model->update();
-        $model = $with ? $this->saveWith($model, $with) : $model;
+        $model = $with ? $this->saveWith($model, $with, $sincronizar) : $model;
         DB::commit();
         return $model;
     }
@@ -136,50 +135,45 @@ abstract class Repository
         return $result;
     }
 
-    public function saveWith(Model $model, array $with)
+    public function saveWith(Model $model, array $with, bool $sincronizar = false)
     {
-        $hasmanys = [];
+        $all_has = [];
         foreach ($with as $key => $cada_with) {
-            $hasmany = $cada_with['hasmany'];
+            $has_name = $cada_with['has'];
             $dados = $cada_with['dados'];
+            array_push($all_has, $has_name);
 
-            // $hasmany_model = get_class_methods($model->{$hasmany}());
-
-            $related_namespace = $model->{$hasmany}()->getRelated();
-            // $hasmany_data = array_map(function($cada_dados) use ($model, $hasmany, $hasmany_model) {
-            //     dd($hasmany_model, new $hasmany_model($cada_dados));
-            //     return $hasmany_model->fill($cada_dados);
-            // }, $dados);
-
-            // $model->{$hasmany}()->saveMany($hasmany_data);
-                // unset($dados[0]['id']);
-                $dados[0]['numero'] = 55;
-                // $dados[0]['lancamento_id'] = 164;
-
-                // $model = new \App\Models\LancamentoParcela();
-                $model = $model->{$hasmany}()->getRelated();
-                $parcela = $model->find(57);
-                // dd($parcela);
-
-                // $temp= (new \App\Models\LancamentoParcela())->fill($dados[0]);
-                $parcela->fill($dados[0]);
-                $result = $parcela->save();
-                // dd($parcela);
-                dd(
-                    $result
-                );
-            // dd($related_namespace, get_class_methods(new $related_namespace));
-            // dd($related_namespace->updateOrCreate($dados[0]));
-
-            // dd($model->{$hasmany}()->saveMany($dados));
-
-
-
-                $related_namespace::updateOrCreate($dados[0]);
-            $model->{$hasmany}()->updateOrCreate($dados[0]);
-            array_push($hasmanys, $hasmany);
+            $this->saveCadaWith($model, $has_name, $dados, $sincronizar);
         }
-        return $this->encontrarPor('id',$model->id, $hasmanys);
+
+        return $this->encontrarPor('id',$model->id, $all_has);
+    }
+
+    public function saveCadaWith(Model $parent_model, $has_name, array $dados, bool $sincronizar = false){
+        $model_has = $parent_model->{$has_name}();
+
+        $no_banco = $model_has->get()->modelKeys();
+
+        $models_has = array_map(function($cada_dados) use ($model_has) {
+            $id = $cada_dados['id'] ?? null;
+            $model_has = $id ? $model_has->find($id) : $model_has->getRelated();
+            return $model_has->fill($cada_dados);
+        }, $dados);
+
+        $result_save = $parent_model->{$has_name}()->saveMany($models_has);
+
+        if($sincronizar){
+            $result_save_ids = array_map(function($cada){return $cada->id ?? null;}, $result_save);
+            $manter_no_banco = array_filter(array_map(function($cada){
+                return $cada['id'] ?? null ? (int) $cada['id'] : null;
+            }, $dados));
+
+            array_push($manter_no_banco, ...$result_save_ids);
+            $apagar_ids = array_diff($no_banco, $manter_no_banco);
+            $class = get_class($model_has->getRelated());
+            $class::destroy($apagar_ids);
+        }
+        return $result_save;
     }
 
     // OUTROS

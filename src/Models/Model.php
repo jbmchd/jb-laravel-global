@@ -23,6 +23,19 @@ abstract class Model extends LaravelModel
 
     public $model_class;
 
+    public function __construct(array $attributes = []){
+        parent::__construct($attributes);
+        $this->model_class = get_class($this);
+    }
+
+    protected static function boot() {
+        parent::boot();
+
+        self::saving(function($model) {
+            self::aplicarRegras($model);
+        });
+    }
+
     protected static function aplicarRegras(LaravelModel $model){
         $campos_ocultos = $model->getHidden();
 
@@ -36,14 +49,6 @@ abstract class Model extends LaravelModel
         self::validar(array_merge($dados, $dados_complementares), $regras);
 
         $model->makeHidden($campos_ocultos);
-    }
-
-    protected static function boot() {
-        parent::boot();
-
-        self::saving(function($model) {
-            self::aplicarRegras($model);
-        });
     }
 
     public static function scopeAtivos($query, $coluna_nome='ativo')
