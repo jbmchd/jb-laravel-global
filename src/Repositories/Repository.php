@@ -150,17 +150,16 @@ abstract class Repository
     }
 
     public function saveCadaWith(Model $parent_model, $has_name, array $dados, bool $sincronizar = false){
-        $model_has = $parent_model->{$has_name}();
+        $no_banco = $parent_model->{$has_name}()->get()->modelKeys();
 
-        $no_banco = $model_has->get()->modelKeys();
-
-        $models_has = array_map(function($cada_dados) use ($model_has) {
+        $models_has = array_map(function($cada_dados) use ($parent_model, $has_name) {
             $id = $cada_dados['id'] ?? null;
-            $model_has = $id ? $model_has->find($id) : $model_has->getRelated();
+            $model_has = $id ? $parent_model->{$has_name}()->find($id) : $parent_model->{$has_name}()->getRelated();
             return $model_has->fill($cada_dados);
         }, $dados);
 
         $result_save = $parent_model->{$has_name}()->saveMany($models_has);
+
 
         if($sincronizar){
             $result_save_ids = array_map(function($cada){return $cada->id ?? null;}, $result_save);
@@ -170,7 +169,7 @@ abstract class Repository
 
             array_push($manter_no_banco, ...$result_save_ids);
             $apagar_ids = array_diff($no_banco, $manter_no_banco);
-            $class = get_class($model_has->getRelated());
+            $class = get_class($parent_model->{$has_name}()->getRelated());
             $class::destroy($apagar_ids);
         }
         return $result_save;

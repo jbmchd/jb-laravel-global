@@ -20,22 +20,26 @@ abstract class CrudService extends Service
 
     public function buscar(array $colunas = ['*'], $with = [], array $scopes = [])
     {
-        return $this->repositorio->buscar($colunas, $with, $scopes);
+        $result = $this->repositorio->buscar($colunas, $with, $scopes);
+        return $this->alterarRetornoBusca($result);
     }
 
     public function buscarPor($coluna, $valor, $with=[], array $scopes=[])
     {
-        return $this->repositorio->buscarPor($coluna, $valor, $with, $scopes);
+        $result = $this->repositorio->buscarPor($coluna, $valor, $with, $scopes);
+        return $this->alterarRetornoBusca($result);
     }
 
     public function encontrar($id, array $colunas = ['*'], array $scopes=[])
     {
-        return $this->repositorio->encontrar($id, $colunas, $scopes);
+        $result = $this->repositorio->encontrar($id, $colunas, $scopes);
+        return $this->alterarRetornoBusca($result);
     }
 
     public function encontrarPor($coluna, $valor, $with=[], array $scopes=[])
     {
-        return $this->repositorio->encontrarPor($coluna, $valor, $with, $scopes);
+        $result = $this->repositorio->encontrarPor($coluna, $valor, $with, $scopes);
+        return $this->alterarRetornoBusca($result);
     }
 
     public function criar(array $dados)
@@ -86,6 +90,10 @@ abstract class CrudService extends Service
 
     public function alterarDadosAntesDoCrud(array $dados)
     {
+        return $dados;
+    }
+
+    public function alterarRetornoBusca($dados){
         return $dados;
     }
 
