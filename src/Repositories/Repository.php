@@ -43,9 +43,9 @@ abstract class Repository
         return $query->get($colunas);
     }
 
-    public function encontrar($id, array $colunas = ['*'], array $scopes=[])
+    public function encontrar($id, array $colunas = ['*'], array $with=[], array $scopes=[])
     {
-        $query = $this->view;
+        $query = $this->view->with($with);
         $query = self::queryAdicionarScopes($query, $scopes);
         return $query->find($id, $colunas);
     }
