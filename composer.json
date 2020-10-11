@@ -3,7 +3,7 @@
     "description": "Base para projetos Laravel",
     "type": "library",
     "require": {
-        "laravel/framework": ">=6.0.0"
+        "laravel/framework": "^8.0"
     },
     "minimum-stability": "dev",
     "authors": [
