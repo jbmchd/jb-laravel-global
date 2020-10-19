@@ -54,7 +54,7 @@ trait TLog
     public static function logBD(string $mensagem, array $infoextra=[], $nivel='INFO')
     {
         $dados = [
-            'user_id'=>session()->get('user.id'),
+            'usuario_id'=>session()->get('usuario.id'),
             'datahora'=>(new \Datetime())->format('Y-m-d H:i:s'),
             'nivel'=>$nivel,
             'mensagem'=>$mensagem,

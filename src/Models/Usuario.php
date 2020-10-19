@@ -2,47 +2,42 @@
 
 namespace JbGlobal\Models;
 
-class Usuario extends Model
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class Usuario extends Authenticatable
 {
-    const PAPEL_SUPER = 'SU';
-    const PAPEL_ADMINISTRADOR = 'ADM';
-    const PAPEL_SUPORTE = 'SUP';
+    use HasFactory, Notifiable;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     protected $fillable = [
-        'id','pessoa_id','papel','senha','remember_token','ativo'
+        'nome',
+        'email',
+        'senha',
     ];
 
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
     protected $hidden = [
-        'senha', 'remember_token', 'deleted_at'
+        'senha',
+        'remember_token',
     ];
 
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
     protected $casts = [
         'email_verificado_em' => 'datetime',
-        'pessoa_id' => 'integer'
     ];
-
-    public function pessoa()
-    {
-        return $this->belongsTo(Pessoa::class);
-    }
-    public function logs()
-    {
-        return $this->hasMany(Log::class);
-    }
-
-    public static function scopeSupers($query)
-    {
-        return $query->where('papel', self::PAPEL_SUPER);
-    }
-
-    public static function scopeAdmins($query)
-    {
-        return $query->where('papel', self::PAPEL_ADMIN);
-    }
-
-    public static function scopeUsuarios($query)
-    {
-        return $query->where('papel', self::PAPEL_USUARIO);
-    }
-
 }

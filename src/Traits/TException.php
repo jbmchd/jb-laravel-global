@@ -2,13 +2,11 @@
 
 namespace JbGlobal\Traits;
 
-use JbGlobal\Exceptions\AppException;
-
 trait TException
 {
-    protected static function exception($mensagem, $codigo=500)
+    public static function jbException($mensagem, $codigo = 500, $exception_class = AppException::class)
     {
-        throw new AppException($mensagem, $codigo);
+        throw new $exception_class($mensagem, $codigo);
     }
 
     public static function criarExceptionMessageCompleta(\Exception $exc)

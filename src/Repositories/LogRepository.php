@@ -4,7 +4,7 @@ namespace JbGlobal\Repositories;
 
 use JbGlobal\Models\Log;
 
-class LogRepository extends Repository
+class LogRepository extends CrudRepository
 {
     public function __construct(Log $model)
     {

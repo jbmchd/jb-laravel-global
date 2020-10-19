@@ -2,6 +2,8 @@
 
 namespace JbGlobal\Exceptions;
 
+use Throwable;
+
 /**
 * AppException
 */

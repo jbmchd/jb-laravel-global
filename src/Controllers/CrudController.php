@@ -12,33 +12,12 @@ class CrudController extends Controller
         parent::__construct($servico);
     }
 
-    public function buscarDadosIniciais()
-    {
-        $result = $this->servico->buscar();
-        $retorno = self::criarRetornoController($result);
-        return $retorno;
-    }
-
-    public function buscar()
-    {
-        $result = $this->servico->buscar();
-        $retorno = self::criarRetornoController($result);
-        return $retorno;
-    }
-
-    public function encontrar($id)
-    {
-        $result = $this->servico->encontrar($id);
-        $retorno = self::criarRetornoController($result);
-        return $retorno;
-    }
-
     public function criar(Request $request)
     {
         $dados = $request->all();
         $result = $this->servico->criar($dados);
-        $retorno = self::criarRetornoController($result, 'Registro inserido com sucesso.');
-        return $retorno;
+        $mensagem = 'Registro inserido com sucesso.';
+        return response()->jbSuccess($result, $mensagem);
     }
 
     public function atualizar(Request $request, $id)
@@ -46,15 +25,13 @@ class CrudController extends Controller
         $dados = $request->all();
         $result = $this->servico->atualizar($dados, $id);
         $mensagem = $result ? 'Registro atualizado com sucesso.' : 'Operação realizada, mas nenhum registro alterado.';
-        $retorno = self::criarRetornoController($result, $mensagem);
-        return $retorno;
+        return response()->jbSuccess($result, $mensagem);
     }
 
     public function deletar($id)
     {
         $result = $this->servico->deletar($id);
         $mensagem = $result ? 'Registro deletado com sucesso.' : 'Operação realizada, mas nenhum registro deletado.';
-        $retorno = self::criarRetornoController($result, $mensagem);
-        return $retorno;
+        return response()->jbSuccess($result, $mensagem);
     }
 }

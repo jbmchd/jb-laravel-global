@@ -12,7 +12,7 @@ class CriarUsuarioAdmin extends Command
      *
      * @var string
      */
-    protected $signature = 'app:criar-admin {email} {senha} {nome_razao}';
+    protected $signature = 'jb-app:criar-admin {email} {senha} {nome_razao}';
 
     /**
      * The console command description.

@@ -3,18 +3,18 @@
 namespace JbGlobal\Models;
 
 use Illuminate\Database\Eloquent\Model as LaravelModel;
-use JbGlobal\Traits\{ TArray, TDiversos, TException, TLog, TValidation, TFile, TSessao };
+use JbGlobal\Traits\{ TArray, TException, TLog, TValidation, TFile };
 
 abstract class Model extends LaravelModel
 {
-    use TArray, TDiversos, TException, TFile, TLog, TValidation, TSessao;
-
-    const CREATED_AT = 'criado_em';
-    const UPDATED_AT = 'alterado_em';
-    const DELETED_AT = 'deletado_em';
+    use TArray, TException, TFile, TLog, TValidation;
 
     protected $hidden = ['pivot'];
-    protected $dates = ['deletado_em'];
+    protected $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
 
     protected $casts = [
         'id' => 'integer',
@@ -61,13 +61,13 @@ abstract class Model extends LaravelModel
         return (new self())->getTable();
     }
 
-    public function regras($ignorar_pk = 0, $dados = [])
-    {
-        return $ignorar_pk ? ["id" => "primary_key|unique:$this->model_class,id,$ignorar_pk"] : [];
-    }
+    // public function regras($ignorar_pk = 0, $dados = [])
+    // {
+    //     return $ignorar_pk ? ["id" => "primary_key|unique:$this->model_class,id,$ignorar_pk"] : [];
+    // }
 
-    public function dadosComplementaresParaValidacao(array $dados)
-    {
-        return [];
-    }
+    // public function dadosComplementaresParaValidacao(array $dados)
+    // {
+    //     return [];
+    // }
 }

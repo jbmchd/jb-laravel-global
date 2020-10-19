@@ -5,6 +5,8 @@ namespace JbGlobal\Providers;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use JbGlobal\Models\Usuario;
+use JbGlobal\Observers\UsuarioObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,5 +34,7 @@ class AppServiceProvider extends ServiceProvider
         Validator::extend('cep', 'JbGlobal\Validators\CEPValidation@validate');
         Validator::extendImplicit('primary_key', 'JbGlobal\Validators\PrimaryKeyValidation@validate');
         Validator::extend('foreign_key', 'JbGlobal\Validators\ForeignKeyValidation@validate');
+
+        Usuario::observe(UsuarioObserver::class);
     }
 }

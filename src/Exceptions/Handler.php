@@ -2,7 +2,6 @@
 
 namespace JbGlobal\Exceptions;
 
-use Exception;
 use JbGlobal\Services\LogService;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -11,9 +10,8 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
-use JbAuthJwt\Exceptions\AuthException;
-use JbAuthJwt\Exceptions\RedefinirSenhaException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Throwable;
 
 class Handler extends ExceptionHandler
 {
@@ -34,8 +32,6 @@ class Handler extends ExceptionHandler
         AuthorizationException::class,
         ModelNotFoundException::class,
         ValidationException::class,
-		AuthException::class,
-        RedefinirSenhaException::class,
     ];
 
     /**
@@ -51,15 +47,18 @@ class Handler extends ExceptionHandler
     /**
      * Report or log an exception.
      *
-     * @param  \Exception  $exception
+     * @param  \Throwable  $exception
      * @return void
      */
-    public function report(Exception $exception)
+    public function report(Throwable $exception)
     {
         $result = null;
         $classe = get_class($exception);
         $classe_pai = get_parent_class($exception);
 
+        /**
+         * Impede a geracao de log para classe no array 'dontReport'
+         */
         if (array_search($classe, $this->dontReport) !== false || array_search($classe_pai, $this->dontReport) !== false) {
             $result = parent::report($exception);
             return $result;
@@ -69,19 +68,19 @@ class Handler extends ExceptionHandler
             $usuario = auth()->user();
 
             $nivel = method_exists($exception, 'getLogNivel') ? $exception->getLogNivel() : 'alert';
-
             $this->servico_log->criar([
+                'usuario_id' => $usuario ? $usuario->id : null,
                 'nivel' => $nivel,
                 'tipo' => $classe,
                 'mensagem' =>  $exception->getMessage(),
                 'arquivo' => $exception->getFile(),
                 'linha' => $exception->getLine(),
-                'trace' => $exception->getTraceAsString(),
-                'action' => Request::fullUrl(),
-                'usuario_id' => $usuario ? $usuario->id : null,
+                'caminho' => $exception->getTraceAsString(),
+                'acao' => Request::fullUrl(),
                 'dados' => $this->toJson(Request::all()),
             ]);
-        } catch (Exception $e) {
+
+        } catch (Throwable $e) {
             Log::error($e);
         }
         return $result;
@@ -91,23 +90,32 @@ class Handler extends ExceptionHandler
      * Render an exception into an HTTP response.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
+     * @param  \Throwable  $exception
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $exception)
+    public function render($request, Throwable $exception)
     {
-        if (config('app.env') != 'local') {
-            header('Access-Control-Allow-Origin: *');
-            header('Access-Control-Allow-Headers: Origin, Content-type, Accept, Authorization, Local-address');
-            header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-        }
+        // if (config('app.env') != 'local') {
+        //     header('Access-Control-Allow-Origin: *');
+        //     header('Access-Control-Allow-Headers: Origin, Content-type, Accept, Authorization, Local-address');
+        //     header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+        // }
 
         $codigo = 500;
-        $resposta = ['message' => 'Ocorreu algum problema.'];
+        $message = 'Ocorreu algum problema.';
+
+        if($exception instanceof ValidationException){
+            $message = $exception->errors();
+        } else {
+            $message = $exception->getMessage();
+
+        }
+
+        $resposta = ['message' => $message];
 
         if (config('app.debug')) {
             $resposta['exception'] = get_class($exception);
-            $resposta['message'] = $exception->getMessage();
+            $resposta['message'] = $message;
             $resposta['trace'] = $exception->getTrace();
             $resposta['line'] = $exception->getLine();
             $resposta['file'] = $exception->getFile();
