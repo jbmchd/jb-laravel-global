@@ -31,7 +31,6 @@ class CNPJRule implements Rule
             return false;
         }
         return true;
-        // dd('passses', $attribute, $value);
     }
 
     /**

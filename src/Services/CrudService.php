@@ -6,12 +6,7 @@ use JbGlobal\Repositories\Repository;
 
 abstract class CrudService extends Service
 {
-    protected $repositorio;
-
-    public function __construct(Repository $repositorio)
-    {
-        parent::__construct($repositorio);
-    }
+    protected $repositorio = Repository::class;
 
     public function criar(array $dados)
     {
@@ -35,18 +30,16 @@ abstract class CrudService extends Service
             $ids_tabela_m = $dados[$nome_array_ids_tabela_m];
             unset($dados[$nome_array_ids_tabela_m]);
         }
-
         return $this->repositorio->criarNM($dados, $ids_tabela_m, $nome_tabela_m);
     }
 
     public function atualizarNM(array $dados, $id, $nome_array_ids_tabela_m, $nome_tabela_m)
     {
-        $ids_tabela_m = [];
+        $ids_tabela_m = null;
         if(isset($dados[$nome_array_ids_tabela_m])){
             $ids_tabela_m = $dados[$nome_array_ids_tabela_m];
             unset($dados[$nome_array_ids_tabela_m]);
         }
-
         return $this->repositorio->atualizarNM($dados, $id, $ids_tabela_m, $nome_tabela_m);
     }
 

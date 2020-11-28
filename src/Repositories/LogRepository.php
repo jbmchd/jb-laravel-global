@@ -6,10 +6,7 @@ use JbGlobal\Models\Log;
 
 class LogRepository extends CrudRepository
 {
-    public function __construct(Log $model)
-    {
-        $this->model = $model;
-    }
+    protected $model = Log::class;
 
     public function todos(array $colunas = ['*'])
     {

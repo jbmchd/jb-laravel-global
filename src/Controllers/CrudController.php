@@ -3,16 +3,13 @@
 namespace JbGlobal\Controllers;
 
 use Illuminate\Http\Request;
-use JbGlobal\Services\Service;
+use JbGlobal\Services\CrudService;
 
 class CrudController extends Controller
 {
-    public function __construct(Service $servico)
-    {
-        parent::__construct($servico);
-    }
+    protected $servico = CrudService::class;
 
-    public function criar(Request $request)
+    public function _criar(Request $request)
     {
         $dados = $request->all();
         $result = $this->servico->criar($dados);
@@ -20,7 +17,7 @@ class CrudController extends Controller
         return response()->jbSuccess($result, $mensagem);
     }
 
-    public function atualizar(Request $request, $id)
+    public function _atualizar(Request $request, $id)
     {
         $dados = $request->all();
         $result = $this->servico->atualizar($dados, $id);
@@ -28,7 +25,7 @@ class CrudController extends Controller
         return response()->jbSuccess($result, $mensagem);
     }
 
-    public function deletar($id)
+    public function _deletar($id)
     {
         $result = $this->servico->deletar($id);
         $mensagem = $result ? 'Registro deletado com sucesso.' : 'Operação realizada, mas nenhum registro deletado.';

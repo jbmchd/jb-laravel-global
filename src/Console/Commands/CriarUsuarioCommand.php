@@ -45,18 +45,7 @@ class CriarUsuarioCommand extends Command
         $arguments = $this->arguments();
         $options = $this->options();
 
-        // $Pessoa = $this->servico->encontrarPessoaPor('email',$arguments['email']);
-
-        // if ($Pessoa) {
-        //     $this->error('Já existe uma pessoa com este email.');
-        //     return false;
-        // }
-
         $arguments['senha_confirmation'] = $arguments['senha'];
-
-
-        // $dados = array_merge($arguments, $options, ['ativo' => true, 'tipo'=>'POND']);
-        // dd($arguments, $options);
 
         try {
             $this->servico->criar($arguments);

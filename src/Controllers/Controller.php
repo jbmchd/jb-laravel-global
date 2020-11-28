@@ -17,9 +17,11 @@ class Controller extends BaseController
     protected $servico;
     protected $exception_class;
 
-    public function __construct($servico=null)
+    public function __construct()
     {
-        $this->servico = $servico;
+        if($this->servico){
+            $this->servico = app($this->servico);
+        }
     }
 
     public function buscarDadosIniciais()

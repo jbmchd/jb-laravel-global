@@ -95,12 +95,6 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        // if (config('app.env') != 'local') {
-        //     header('Access-Control-Allow-Origin: *');
-        //     header('Access-Control-Allow-Headers: Origin, Content-type, Accept, Authorization, Local-address');
-        //     header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-        // }
-
         $codigo = 500;
         $message = 'Ocorreu algum problema.';
 

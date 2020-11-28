@@ -46,7 +46,6 @@ class UsuarioRequest extends Request
 
                 break;
         }
-        // dd($regras_selecionadas);
         return $regras_selecionadas;
     }
 }

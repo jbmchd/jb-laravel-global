@@ -6,8 +6,5 @@ use JbGlobal\Repositories\LogRepository;
 
 class LogService extends CrudService
 {
-    public function __construct(LogRepository $repositorio)
-    {
-        $this->repositorio = $repositorio;
-    }
+    protected $repositorio = LogRepository::class;
 }

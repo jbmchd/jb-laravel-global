@@ -28,7 +28,6 @@ class CPFRule implements Rule
             return false;
         }
         return true;
-        // dd('passses', $attribute, $value);
     }
 
     /**

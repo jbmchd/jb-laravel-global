@@ -14,7 +14,6 @@ class ResponseMacroServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // parent::boot();
         $padronizarRetornoMethod=function ($dados, $mensagens=null, $tipo='app') {
             return $this->padronizarRetorno($dados, $mensagens, $tipo);
         };

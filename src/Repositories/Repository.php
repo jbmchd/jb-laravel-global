@@ -17,10 +17,13 @@ abstract class Repository
     protected $model;
     protected $view;
 
-    public function __construct(Model $model, Model $view=null)
+    public function __construct()
     {
-        $this->model = $model;
-        $this->view = $view ?? $model;
+        if($this->model){
+            $this->model = app($this->model);
+        }
+
+        $this->view = $this->view ? app($this->view) : $this->model;
     }
 
     // BUSCAS

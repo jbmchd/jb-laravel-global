@@ -15,7 +15,10 @@ class PrimaryKeyRule implements ImplicitRule
      */
     public function passes($attribute, $value)
     {
-        return !!$value && (float) $value >= 1;
+        if($value!==null){
+            return (float) $value >= 1;
+        }
+        return true ;
     }
 
     /**

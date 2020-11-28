@@ -3,7 +3,6 @@
 namespace JbGlobal\Repositories;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\DB;
 use JbGlobal\Exceptions\RepositoryException;
 use JbGlobal\Traits\{ TArray, TException, TLog, TValidation, TFile };
@@ -14,14 +13,8 @@ abstract class CrudRepository extends Repository
 
     const SINCRONIZAR = true;
 
-    protected $model;
+    protected $model = Model::class;
     protected $view;
-
-    public function __construct(Model $model, Model $view=null)
-    {
-        $this->model = $model;
-        $this->view = $view ?? $model;
-    }
 
     // CRUD
     public function criar(array $dados, array $with = [])
@@ -73,12 +66,14 @@ abstract class CrudRepository extends Repository
         return $result;
     }
 
-    public function atualizarNM(array $dados_n, $id_n, array $ids_m, string $tabela_m)
+    public function atualizarNM(array $dados_n, $id_n, $ids_m, string $tabela_m)
     {
         DB::beginTransaction();
         $result = $this->atualizar($dados_n, $id_n);
         throw_if(!$result, new RepositoryException("Problema ao atualizar os dados na tabela {$this->model->getTable()}"));
-        $result->$tabela_m()->sync($ids_m);
+        if(is_array($ids_m)){
+            $result->$tabela_m()->sync($ids_m);
+        }
         DB::commit();
         return $result;
     }

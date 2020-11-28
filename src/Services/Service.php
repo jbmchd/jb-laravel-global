@@ -10,12 +10,14 @@ abstract class Service
 {
     use TArray, TFile, TLog, TValidation;
 
-    protected $repositorio;
+    protected $repositorio = Repository::class;
     protected $exception_class;
 
-    public function __construct(Repository $repositorio = null)
+    public function __construct()
     {
-        $this->repositorio = $repositorio;
+        if($this->repositorio){
+            $this->repositorio = app($this->repositorio);
+        }
     }
 
     public function buscar(array $colunas = ['*'], $with = [], array $scopes = [])
